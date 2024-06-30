@@ -54,7 +54,7 @@ const userSchema= new Schema({
 userSchema.pre("save",async function (next) {
     if(!this.isModified("password"))return next(); //checks if passord field modified or not so that it doesn't run everytime you update something
 
-    this.password= bcrypt.hash(this.password,8)//bcrypt.hash(naam,kitne rownds)
+    this.password= await bcrypt.hash(this.password,8)//bcrypt.hash(naam,kitne rownds)
     next()
 })
 
@@ -93,4 +93,4 @@ userSchema.methods.generateRefreshToken= function(){
 }
 
 
-export const User = mongoose.model("Users",userSchema)
+export const User = mongoose.model("User",userSchema)
