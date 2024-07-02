@@ -180,7 +180,7 @@ const logoutUser= asynchadnler(async(req,res)=>{
 const refreshAccessToken= asynchadnler(async(req,res)=>{
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
-    if(incomingRefreshToken){
+    if(!incomingRefreshToken){
         throw new ApiError(401,"unathorized request")
     }
 
