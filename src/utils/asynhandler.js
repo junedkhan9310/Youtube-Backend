@@ -6,9 +6,6 @@ const asynchadnler =(requesthandler)=>{ //requesthadnler is function
 
 }
 
-
-
-
 export {asynchadnler}
 
 
