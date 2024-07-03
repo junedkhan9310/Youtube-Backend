@@ -267,7 +267,7 @@ const updateAccountDetails= asynchadnler(async(req,res)=>{
 })
 
 const Userupdateavatar= asynchadnler(async(req,res)=>{
-
+    //i want to make a util to deleted already present image in db and cloudinary
     const avtarlocalpath= req.file?.path
     if(avtarlocalpath){throw new ApiError(400,"uload file is missing")}
 
