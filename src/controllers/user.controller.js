@@ -245,9 +245,9 @@ const getCurrentUser= asynchadnler(async(req,res)=>{
 
 const updateAccountDetails= asynchadnler(async(req,res)=>{
 
-    const {fullname,email}= req.body
+    const {fullName,email}= req.body
 
-    if(!fullname || !email){
+    if(!fullName || !email){
         throw new ApiError(400,"All fields are required")
     }
 
@@ -255,7 +255,7 @@ const updateAccountDetails= asynchadnler(async(req,res)=>{
         req.user?._id,
         {
             $set:{
-                fullname,
+                fullName,
                 email
             }
         },
@@ -314,7 +314,75 @@ const UserupdateCoverimage= asynchadnler(async(req,res)=>{
 
 })
 
+const getUserChannelProfile= asynchadnler(async(req,res)=>{
 
+    const {username}= req.params
+
+    if(!username?.trim()){throw new ApiError(400,"user not found")} //checks if username exists or not
+
+    const channel =await User.aggregate([
+        {
+            $match:{
+                username:username?.toLowerCase()
+            }
+        },  
+        {
+            $lookup:{
+                from :"subscriptions", //eveything in lower case and added s in last
+                localField:"_id",
+                foreignField:"channel",
+                as:"subscriber"
+            }
+        },
+        {
+            $lookup:{
+                from :"subscriptions",
+                localField:"_id",
+                foreignField:"subscriber",
+                as:"subscribedTo"
+            }
+        },
+        {
+            $addFields:{
+                subscriberCount:{
+                    $size:"$subscriber"
+                },
+                channelsSubcriberdToCount:{
+                   $size:"$subscribedTo"
+                },
+                isSubscribed:{
+                    $cond:{ 
+                        if:{$in: [req.user?._id,"$subscriber.subscriber"]},
+                        then:true,
+                        else:false
+                    }
+                }
+            }
+
+        },
+        {
+            $project:{
+                fullName:1,
+                username:1,
+                subscriberCount:1,
+                channelsSubcriberdToCount:1,
+                isSubscribed:1,
+                avatar:1,
+                coverImage:1,
+                email:1,                
+            }
+        }
+    ])
+
+    if(!channel?.length){
+        throw new ApiError(400,"Channel deosn't exists")
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200,channel[0],"user channel feteched"))
+
+})
 
 
 
@@ -328,5 +396,6 @@ export {registerUser,
     getCurrentUser,
     updateAccountDetails,
     Userupdateavatar,
-    UserupdateCoverimage
+    UserupdateCoverimage,
+    getUserChannelProfile
 }
