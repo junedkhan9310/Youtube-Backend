@@ -12,7 +12,7 @@ const generateAccessAndRefreshTokens= async(userId)=>{
         const accessToken = user.generateAccessToken()
         const refreshToken = user.generateRefreshToken()//access token we give direclty to user but we also save refresh token in db
         
-        user.refreshToken=refreshToken; //saving refresh token to db to user 
+        user.refreshTokens=refreshToken; //saving refresh token to db to user 
         await user.save({validateBeforeSave :false})//save kicks in everyting else so we add validatebeforesave to ignore required fields in models
 
         return {accessToken,refreshToken}
@@ -131,7 +131,7 @@ const loginUser = asynchadnler(async(req,res)=>{
     const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(user._id);
 
     //now sending user in cookies
-    const logedinuser= await User.findById(user._id).select("-password -refreshToken")
+    const logedinuser= await User.findById(user._id).select("-password -refreshTokens")
     
     const options={
         httpOnly:true,
@@ -156,8 +156,8 @@ const logoutUser= asynchadnler(async(req,res)=>{
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken:undefined
+            $unset: {
+                refreshToken:1
             }
             
         },
@@ -187,14 +187,14 @@ const refreshAccessToken= asynchadnler(async(req,res)=>{
 
     try {
         const decodedrefreshtoken= jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
-    
+        
         const user= await User.findById(decodedrefreshtoken?._id)
-    
+        
         if(!user){
             throw new ApiError(401,"invalid refreshtoken")
         }
-    
-        if(incomingRefreshToken!==user?.refreshToken){
+        
+        if(incomingRefreshToken!==user?.refreshTokens){
             throw new ApiError(401,"refresh token in expired or used")
         }
     
@@ -223,7 +223,7 @@ const refreshAccessToken= asynchadnler(async(req,res)=>{
 const changeCurrentPassword= asynchadnler(async(req,res)=>{
     const {oldpasseord,newpassword}= req.body
     const user = await User.findById(req.user?._id)
-    const ispasswordCorrect= await user.isispasswordcorrect(oldpasseord)
+    const ispasswordCorrect= await user.ispasswordcorrect(oldpasseord)
 
     if(!ispasswordCorrect){
         throw new ApiError(400,"invalid old password")
@@ -251,7 +251,7 @@ const updateAccountDetails= asynchadnler(async(req,res)=>{
     if(!fullName || !email){
         throw new ApiError(400,"All fields are required")
     }
-
+    // console.log(req.user);
     const user= User.findByIdAndUpdate(
         req.user?._id,
         {
