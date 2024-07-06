@@ -247,12 +247,12 @@ const getCurrentUser= asynchadnler(async(req,res)=>{
 const updateAccountDetails= asynchadnler(async(req,res)=>{
 
     const {fullName,email}= req.body
-
+   
     if(!fullName || !email){
         throw new ApiError(400,"All fields are required")
     }
-    // console.log(req.user);
-    const user= User.findByIdAndUpdate(
+
+    const user= await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set:{
@@ -262,7 +262,7 @@ const updateAccountDetails= asynchadnler(async(req,res)=>{
         },
         {new:true}
     ).select("-password")
-
+    
     return res.status(200)
     .json(new ApiResponse(200,user,"updated successfully"))
 })
