@@ -6,7 +6,7 @@ import { publishAVideo } from "../controllers/video.controller.js";
 const router = Router();
 router.use(verifyJwt); // Apply verifyJWT middleware to all routes in this file
 
-router.route("/VideoPublish").post(
+router.route("/VideoPublish").post(//upload dalna baki hai user routes mese dhek
     upload.fields([
         {
             name:"videoFIle",

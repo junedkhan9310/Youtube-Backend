@@ -1,7 +1,7 @@
 import { asynchadnler } from "../utils/asynhandler.js";
 import {ApiError} from "../utils/APIError.js"
 import {User} from "../models/user.model.js"
-import {uploadOnCloudinary} from "../utils/cloudnary.js"
+import {deleteOnCloudinary, uploadOnCloudinary} from "../utils/cloudnary.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
@@ -266,11 +266,27 @@ const updateAccountDetails= asynchadnler(async(req,res)=>{
     return res.status(200)
     .json(new ApiResponse(200,user,"updated successfully"))
 })
+const deleteCoverImage= asynchadnler(async(req,res)=>{
+    //I want to make a util to deleted already present image in db and cloudinary
+    const user_ID = req.user._id;
+    const user= await User.findById(user_ID)
+    try {
+        const message= await deleteOnCloudinary(user.coverImage)
+        user.coverImage = '';
+        await user.save();
+            
+        res.status(200).json(new ApiResponse(200,message,"succesfully deleted"))
+        
+    } catch (error) {
+        res.status(500).json(new ApiError(500, error.message));
 
+    }
+    
+
+})
 const Userupdateavatar= asynchadnler(async(req,res)=>{
-    //i want to make a util to deleted already present image in db and cloudinary
     const avtarlocalpath= req.file?.path
-    if(avtarlocalpath){throw new ApiError(400,"uload file is missing")}
+    if(!avtarlocalpath){throw new ApiError(400,"uload file is missing")}
 
     const avatar = await uploadOnCloudinary(avtarlocalpath)
     if(!avatar.url){throw new ApiError(501,"error while uploading avatara on cloudinary")}
@@ -294,7 +310,7 @@ const Userupdateavatar= asynchadnler(async(req,res)=>{
 const UserupdateCoverimage= asynchadnler(async(req,res)=>{
 
     const CoverImagelocalpath= req.file?.path
-    if(CoverImagelocalpath){throw new ApiError(400,"uload file is missing")}
+    if(!CoverImagelocalpath){throw new ApiError(400,"uload file is missing")}
 
     const CoverImage = await uploadOnCloudinary(CoverImagelocalpath)
     if(!CoverImage.url){throw new ApiError(501,"error while uploading coverimage on cloudinary")}
@@ -448,5 +464,6 @@ export {registerUser,
     Userupdateavatar,
     UserupdateCoverimage,
     getUserChannelProfile,
-    getVideoHistory
+    getVideoHistory,
+    deleteCoverImage
 }

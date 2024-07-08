@@ -1,4 +1,5 @@
 import { v2 as cloudinary} from "cloudinary";
+import { response } from "express";
 import fs from "fs" //file system in node.js by default
 
 cloudinary.config({ 
@@ -24,5 +25,19 @@ const uploadOnCloudinary= async(locaalFilePath)=>{
         return null
     }
 }
-
-export{uploadOnCloudinary}
+const deleteOnCloudinary = async (url) => {
+    try {
+      const urlParts = url.split('/');
+      const publicIdWithExtension = urlParts[urlParts.length - 1];
+      const publicId = publicIdWithExtension.split('.')[0];
+  
+      // Delete the file using the public_id
+      const response = await cloudinary.uploader.destroy(publicId);
+      return response
+    } 
+    catch (error) {
+        return null;
+    }
+  };
+  
+export{uploadOnCloudinary, deleteOnCloudinary}
