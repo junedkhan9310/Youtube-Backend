@@ -30,9 +30,25 @@ const deleteOnCloudinary = async (url) => {
       const urlParts = url.split('/');
       const publicIdWithExtension = urlParts[urlParts.length - 1];
       const publicId = publicIdWithExtension.split('.')[0];
-  
       // Delete the file using the public_id
       const response = await cloudinary.uploader.destroy(publicId);
+      
+
+      return response
+    } 
+    catch (error) {
+        return null;
+    }
+  };
+
+const VideodeleteOnCloudinary = async (url) => {
+    try {
+      const urlParts = url.split('/');
+      const publicIdWithExtension = urlParts[urlParts.length - 1];
+      const publicId = publicIdWithExtension.split('.')[0];
+      // Delete the file using the public_id
+      
+      const response = await cloudinary.uploader.destroy(publicId,{resource_type: "video"});
       return response
     } 
     catch (error) {
@@ -40,4 +56,4 @@ const deleteOnCloudinary = async (url) => {
     }
   };
   
-export{uploadOnCloudinary, deleteOnCloudinary}
+export{uploadOnCloudinary, deleteOnCloudinary,VideodeleteOnCloudinary}

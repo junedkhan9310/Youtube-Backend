@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js"
 import { ApiError } from "../utils/APIError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import { asynchadnler } from "../utils/asynhandler.js"
-import { uploadOnCloudinary } from "../utils/cloudnary.js"
+import { deleteOnCloudinary, uploadOnCloudinary,VideodeleteOnCloudinary } from "../utils/cloudnary.js"
 
 
 const getAllVideos = asynchadnler(async (req, res) => {
@@ -20,7 +20,6 @@ const publishAVideo = asynchadnler(async (req, res) => {
     if (!(title && description)) {
         throw new ApiError(400,"Please Add Title and Description")
     }
-    console.log("idhdar tak");
     const ThumbnailLocalPath= req.files?.thumbnail[0]?.path;
     if(!ThumbnailLocalPath){throw new ApiError(403,"Thumbnail Required")}
 
@@ -92,9 +91,37 @@ const updateVideo = asynchadnler(async (req, res) => {
 
 })
 
+
 const deleteVideo = asynchadnler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
+    // console.log(videoId);
+    //1-search for video from video id
+    //2-delet video id from cloudinary 
+    //3-delete tumbnail aslo from cloudinary
+    //4-then delete the entry of entire thing using deleteOne
+ 
+    try {
+        const video = await Video.findById(videoId);
+        if (!video) {
+            throw new ApiError(404, "Video not found");
+        }
+    
+        const message = await VideodeleteOnCloudinary(video.videoFile);
+        
+        if (message=="") {
+            throw new ApiError(502, "Error while deleting the video");
+        } else {
+            await deleteOnCloudinary(video.thumbnail);
+            await Video.deleteOne({ _id: video._id });
+        }
+        res.status(200).json(new ApiResponse(200,message,"succesfully deleted"))
+    } catch (error) {
+        console.error("Error details:", error);
+        throw new ApiError(500, "Error deleting the video: " + error.message);
+    }
+    
+
 })
 
 const togglePublishStatus = asynchadnler(async (req, res) => {

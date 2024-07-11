@@ -39,3 +39,57 @@ const app = express()
     }
 })()
     */
+
+
+
+//video uploader 
+//1-deletion try
+
+
+// const deleteVideo = asynchadnler(async (req, res) => {
+//     const videoId  = req.params['_id'];
+//     //TODO: delete video
+//     //1-search videofile(link) from database
+//     //2-run deleteon cloudinary using that link and update db string to empty
+    
+//     const video= await Video.findById(videoId)
+    
+//     try {
+//         const message= await VideodeleteOnCloudinary(video.videoFIle);
+//         // await deleteOnCloudinary(video.thumbnail)
+//         video.videoFIle = '';
+//         // video.thumbnail = '';
+//         await video.save();
+            
+//         res.status(200).json(new ApiResponse(200,message,"succesfully deleted"))
+        
+//     } catch (error) {
+//         res.status(500).json(new ApiError(500, error.message));
+
+//     }
+// })
+
+
+   // MyModel.deleteOne({ name: 'John Doe' })
+    // .then((result) => {
+    //     console.log(result); // Returns information about the deletion
+    // })
+    // .catch((err) => {
+    //     console.error(err);
+    // });
+
+    // try {
+    //     const video= await Video.findById(videoId)
+    //     const message =await VideodeleteOnCloudinary(video.videoFIle)
+        
+    //     if(!message){
+    //         throw new ApiError(502,"error while deletin gthe video")
+    //     }
+    //     else{
+    //         await deleteOnCloudinary(video.thumbnail)
+    //         await Video.deleteOne({_id:'video._id'})
+    //     }
+        
+    // } catch (error) {
+    //     throw new ApiError(500,"error deleting from the video")
+    // }
