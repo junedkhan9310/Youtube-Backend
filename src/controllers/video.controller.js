@@ -53,6 +53,8 @@ const publishAVideo = asynchadnler(async (req, res) => {
 const getVideoById = asynchadnler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
+    const video = await Video.findById(videoId)
+    return res.status(200).json(200,video,"This is video")
 })
 
 const updateVideo = asynchadnler(async (req, res) => {
@@ -65,20 +67,25 @@ const updateVideo = asynchadnler(async (req, res) => {
     const { title,description,isPublished}= req.body;
     if(!(title || description || isPublished)){throw new ApiError(200,"All Fields Required")}
 
-    const ThumbnailLocalPath= req.file?.path
+    const ThumbnailLocalPath= req.files?.thumbnail[0]?.path;
     if(!ThumbnailLocalPath){throw new ApiError(400,"Upload thumbnail")}
 
+    const video = await Video.findById(videoId)
+    await deleteOnCloudinary(video.thumbnail)
+    
     const thumbnail = await uploadOnCloudinary(ThumbnailLocalPath)
-    if(!thumbnail.url){throw new ApiError(501,"error while uploading thumbnai on cloudinary")}
+    if(!thumbnail.url){throw new ApiError(501,"error while uploading thumbnail on cloudinary")}
 
 
 
     //2-find videobyid and update
-    const Video = await Video.findByIdAndUpdate(
+    await Video.findByIdAndUpdate(
         videoId,
         {
             $set:{
-                thumbnail:thumbnail.url
+                thumbnail:thumbnail.url,
+                title,
+                description
             }
         },
         {
@@ -107,7 +114,7 @@ const deleteVideo = asynchadnler(async (req, res) => {
             throw new ApiError(404, "Video not found");
         }
     
-        const message = await VideodeleteOnCloudinary(video.videoFile);
+        const message = await VideodeleteOnCloudinary(video.videoFIle);
         
         if (message=="") {
             throw new ApiError(502, "Error while deleting the video");
