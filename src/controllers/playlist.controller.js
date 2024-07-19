@@ -4,6 +4,7 @@ import { ApiError } from "../utils/APIError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asynchadnler } from "../utils/asynhandler.js"
 import { User } from "../models/user.model.js"
+import { Video } from "../models/video.model.js"
 
 
 const createPlaylist = asynchadnler(async (req, res) => {
@@ -36,16 +37,61 @@ const getUserPlaylists = asynchadnler(async (req, res) => {
 const getPlaylistById = asynchadnler(async (req, res) => {
     const {playlistId} = req.params
     //TODO: get playlist by id
+    
+    const playlist= await PlayList.findById(playlistId);
+    if(!playlist){throw new ApiError(405,"Play list not found")};
+
+    return res.status(200)
+    .json(new ApiResponse(200,playlist,"Playlist Fetch successfully"))
+
+
 })
 
 const addVideoToPlaylist = asynchadnler(async (req, res) => {
     const {playlistId, videoId} = req.params
+    //1-get playlist from db
+    //2-get video model from videoschema
+    //3-add link of the video in pkaylist model array using push
+    const playlist= await PlayList.findById(playlistId);
+    if(!playlist){throw new ApiError(405,"Play list not found")};
+
+    const video= await Video.findById(videoId);
+    if(!video){throw new ApiError(405,"video not found")};
+
+
+    playlist.videos.push(video._id);
+    await playlist.save({validateBeforeSave:false});
+
+    res.status(200).json(new ApiResponse(200,"succesfully added"))
+    
     
 })
 
 const removeVideoFromPlaylist = asynchadnler(async (req, res) => {
     const {playlistId, videoId} = req.params
     // TODO: remove video from playlist
+
+    const playlist= await PlayList.findById(playlistId);
+    if(!playlist){throw new ApiError(405,"Play list not found")};
+
+    let index;
+    for (const key in playlist.videos) {
+        if (playlist.videos[key]===videoId) {
+            index=key;           
+        }  
+    }
+    console.log(index);
+
+    if (index === -1) {
+            throw new ApiError(404, "Video not found in playlist");
+        }
+
+    console.log(index);
+    playlist.videos.splice(index, 1);
+
+    await playlist.save({validateBeforeSave:false});
+
+    res.status(200).json(new ApiResponse(200,"Deleted successfully"))
 
 })
 

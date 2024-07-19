@@ -17,13 +17,19 @@ router.use(verifyJwt); // Apply verifyJWT middleware to all routes in this file
 
 router.route("/createplaylist").get(createPlaylist)
 
+router.route("/getplaylist/:playlistId").get(getPlaylistById)
+
+router.route("/add/:videoId/:playlistId").patch(addVideoToPlaylist);
+
+router.route("/remove/:videoId/:playlistId").delete(removeVideoFromPlaylist);
+
+
 router
     .route("/:playlistId")
     .get(getPlaylistById)
     .patch(updatePlaylist)
     .delete(deletePlaylist);
 
-router.route("/add/:videoId/:playlistId").patch(addVideoToPlaylist);
 router.route("/remove/:videoId/:playlistId").patch(removeVideoFromPlaylist);
 
 router.route("/user/:userId").get(getUserPlaylists);
