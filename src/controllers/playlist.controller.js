@@ -43,8 +43,6 @@ const getPlaylistById = asynchadnler(async (req, res) => {
 
     return res.status(200)
     .json(new ApiResponse(200,playlist,"Playlist Fetch successfully"))
-
-
 })
 
 const addVideoToPlaylist = asynchadnler(async (req, res) => {
@@ -52,59 +50,92 @@ const addVideoToPlaylist = asynchadnler(async (req, res) => {
     //1-get playlist from db
     //2-get video model from videoschema
     //3-add link of the video in pkaylist model array using push
-    const playlist= await PlayList.findById(playlistId);
-    if(!playlist){throw new ApiError(405,"Play list not found")};
-
-    const video= await Video.findById(videoId);
-    if(!video){throw new ApiError(405,"video not found")};
-
-
-    playlist.videos.push(video._id);
-    await playlist.save({validateBeforeSave:false});
-
-    res.status(200).json(new ApiResponse(200,"succesfully added"))
+    try {
+        const playlist= await PlayList.findById(playlistId);
+        if(!playlist){throw new ApiError(405,"Play list not found")};
+    
+        const video= await Video.findById(videoId);
+        if(!video){throw new ApiError(405,"video not found")};
     
     
+        playlist.videos.push(video._id);
+        await playlist.save({validateBeforeSave:false});
+    
+        res.status(200).json(new ApiResponse(200,"succesfully added"))
+    } catch (error) {
+        throw new ApiError(500,"unable to upload")
+    }
 })
 
 const removeVideoFromPlaylist = asynchadnler(async (req, res) => {
     const {playlistId, videoId} = req.params
     // TODO: remove video from playlist
-
-    const playlist= await PlayList.findById(playlistId);
-    if(!playlist){throw new ApiError(405,"Play list not found")};
-
-    let index;
-    for (const key in playlist.videos) {
-        if (playlist.videos[key]===videoId) {
-            index=key;           
-        }  
-    }
-    console.log(index);
-
-    if (index === -1) {
-            throw new ApiError(404, "Video not found in playlist");
+    try {
+        const playlist= await PlayList.findById(playlistId);
+        if(!playlist){throw new ApiError(405,"Play list not found")};
+        
+        let flagge;
+        for (const key in playlist.videos) {
+            if (playlist.videos[key]==videoId) {
+                flagge= key
+            }
         }
+        
+        playlist.videos.splice(flagge,1);
+        console.log(playlist);
 
-    console.log(index);
-    playlist.videos.splice(index, 1);
+        await playlist.save({validateBeforeSave:false})
+        res.status(200).json(new ApiResponse(200,"succesfully deleted"))
 
-    await playlist.save({validateBeforeSave:false});
+    } catch (error) {
+        throw new ApiError(508,"Can't delete")
+    }
 
-    res.status(200).json(new ApiResponse(200,"Deleted successfully"))
-
+    
 })
 
 const deletePlaylist = asynchadnler(async (req, res) => {
     const {playlistId} = req.params
     // TODO: delete playlist
+    
+    try {
+        await PlayList.deleteOne({ _id: playlistId });
+
+        res.status(200).json(new ApiResponse(200,"Playlist successfully deleted"))
+
+    } catch (error) {
+        throw new ApiError(514,"Playlist not present ")
+    }
 })
 
 const updatePlaylist = asynchadnler(async (req, res) => {
     const {playlistId} = req.params
     const {name, description} = req.body
     //TODO: update playlist
+
+    // const playlist = await PlayList.findById(playlistId);
+    console.log(name,description);
+    if(!(name||description)){throw new ApiError(301,"Name or description needed")}
+    
+    const playlist = await PlayList.findByIdAndUpdate(
+        playlistId,
+        {
+            $set:{
+                name,
+                description,
+            }
+        },
+        {
+            new:true
+        }
+    )
+    return res.status(200).json(new ApiResponse(200,playlist,"Playlist successfully updated"))
+
+
 })
+
+
+
 
 export {
     createPlaylist,
