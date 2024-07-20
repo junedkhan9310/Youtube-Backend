@@ -1,4 +1,4 @@
-import mongoose, {isValidObjectId} from "mongoose"
+import mongoose, {isValidObjectId, Schema } from "mongoose"
 import { PlayList } from "../models/playlist.model.js"
 import { ApiError } from "../utils/APIError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -32,6 +32,39 @@ const createPlaylist = asynchadnler(async (req, res) => {
 const getUserPlaylists = asynchadnler(async (req, res) => {
     const {userId} = req.params
     //TODO: get user playlists
+    //**************Need to complete this later **********/
+
+    try {
+        const playlistofUser = await PlayList.aggregate([
+           {
+                $match:{
+                    owner:ObjectId(`'${userId}'`)
+                }
+           },
+           {
+                $project:{
+                    name:1,
+                    description:1,
+                    videos:1,
+                }
+           }
+        ])
+        
+        if (playlistofUser.length === 0) {
+            throw new ApiError(400, "Playlist doesn't exist");
+        }
+
+        console.log(playlistofUser);
+        
+        res.status(200).json(new ApiResponse(200,playlistofUser,"Every playlist"))
+    } catch (error) {
+
+        res.status(500).json(new ApiError(500, error,"Can't find user or playlist"));
+
+    }
+    
+
+
 })
 
 const getPlaylistById = asynchadnler(async (req, res) => {

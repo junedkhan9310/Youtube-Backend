@@ -27,14 +27,14 @@ router.route("/deletePlaylist/:playlistId").delete(deletePlaylist)
 
 router.route("/updateplaylist/:playlistId").patch(updatePlaylist)
 
-router
-    .route("/:playlistId")
-    .get(getPlaylistById)
-    .patch(updatePlaylist)
-    .delete(deletePlaylist);
+// router
+//     .route("/:playlistId")
+//     .get(getPlaylistById)
+//     .patch(updatePlaylist)
+//     .delete(deletePlaylist);
 
-router.route("/remove/:videoId/:playlistId").patch(removeVideoFromPlaylist);
+// router.route("/remove/:videoId/:playlistId").patch(removeVideoFromPlaylist);
 
-router.route("/user/:userId").get(getUserPlaylists);
+router.route("/userplaylist/:userId").get(getUserPlaylists);
 
 export default router
