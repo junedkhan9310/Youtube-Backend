@@ -22,7 +22,6 @@ const createPlaylist = asynchadnler(async (req, res) => {
         owner:user._id
     })
     
-
     if(!playlist){throw new ApiError(510,"can't make playlilst")};
 
     return res.status(200).json(new ApiResponse(200,playlist,"playlist created"))
@@ -32,23 +31,16 @@ const createPlaylist = asynchadnler(async (req, res) => {
 const getUserPlaylists = asynchadnler(async (req, res) => {
     const {userId} = req.params
     //TODO: get user playlists
-    //**************Need to complete this later **********/
 
     try {
-        const playlistofUser = await PlayList.aggregate([
-           {
-                $match:{
-                    owner:ObjectId(`'${userId}'`)
-                }
-           },
-           {
-                $project:{
-                    name:1,
-                    description:1,
-                    videos:1,
-                }
-           }
-        ])
+        const playlistofUser= await PlayList.find(
+            {
+                owner:userId
+            },
+            {
+                _id:0
+            }
+        )
         
         if (playlistofUser.length === 0) {
             throw new ApiError(400, "Playlist doesn't exist");
@@ -60,11 +52,8 @@ const getUserPlaylists = asynchadnler(async (req, res) => {
     } catch (error) {
 
         res.status(500).json(new ApiError(500, error,"Can't find user or playlist"));
-
     }
     
-
-
 })
 
 const getPlaylistById = asynchadnler(async (req, res) => {
@@ -75,7 +64,7 @@ const getPlaylistById = asynchadnler(async (req, res) => {
     if(!playlist){throw new ApiError(405,"Play list not found")};
 
     return res.status(200)
-    .json(new ApiResponse(200,playlist,"Playlist Fetch successfully"))
+                .json(new ApiResponse(200,playlist,"Playlist Fetch successfully"))
 })
 
 const addVideoToPlaylist = asynchadnler(async (req, res) => {
@@ -113,7 +102,6 @@ const removeVideoFromPlaylist = asynchadnler(async (req, res) => {
                 flagge= key
             }
         }
-        
         playlist.videos.splice(flagge,1);
         console.log(playlist);
 
@@ -123,7 +111,6 @@ const removeVideoFromPlaylist = asynchadnler(async (req, res) => {
     } catch (error) {
         throw new ApiError(508,"Can't delete")
     }
-
     
 })
 
@@ -146,7 +133,6 @@ const updatePlaylist = asynchadnler(async (req, res) => {
     const {name, description} = req.body
     //TODO: update playlist
 
-    // const playlist = await PlayList.findById(playlistId);
     console.log(name,description);
     if(!(name||description)){throw new ApiError(301,"Name or description needed")}
     
@@ -163,7 +149,6 @@ const updatePlaylist = asynchadnler(async (req, res) => {
         }
     )
     return res.status(200).json(new ApiResponse(200,playlist,"Playlist successfully updated"))
-
 
 })
 

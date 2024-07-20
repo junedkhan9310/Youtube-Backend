@@ -27,6 +27,8 @@ app.use(cookieParser())//this use for acccesing and seting cookie form user brow
 import UserRouter from './routes/user.routers.js'; 
 import videorouter from './routes/video.routers.js';
 import playlistRouter from './routes/playlist.routers.js'
+import twitterRouter from './routes/tweet.routers.js'
+
 
 //routes decalrtion
 app.use("/api/v1/users",UserRouter)
@@ -35,6 +37,8 @@ app.use("/api/v1/users",UserRouter)
 app.use("/api/v1/videos", videorouter)
 
 app.use("/api/v1/playlist", playlistRouter)
+
+app.use("/api/v1/twitter",twitterRouter)
 
 
 
