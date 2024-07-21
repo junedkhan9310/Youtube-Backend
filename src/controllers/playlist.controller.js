@@ -1,6 +1,6 @@
 import mongoose, {isValidObjectId, Schema } from "mongoose"
 import { PlayList } from "../models/playlist.model.js"
-import { ApiError } from "../utils/APIError.js"
+import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asynchadnler } from "../utils/asynhandler.js"
 import { User } from "../models/user.model.js"
