@@ -28,7 +28,7 @@ import UserRouter from './routes/user.routers.js';
 import videorouter from './routes/video.routers.js';
 import playlistRouter from './routes/playlist.routers.js'
 import twitterRouter from './routes/tweet.routers.js'
-
+import commentRouter from './routes/comment.router.js'
 
 //routes decalrtion
 app.use("/api/v1/users",UserRouter)
@@ -40,6 +40,6 @@ app.use("/api/v1/playlist", playlistRouter)
 
 app.use("/api/v1/twitter",twitterRouter)
 
-
+app.use("/api/v1/comment",commentRouter)
 
 export { app }

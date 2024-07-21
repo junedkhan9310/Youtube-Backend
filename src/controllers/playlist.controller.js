@@ -124,7 +124,7 @@ const deletePlaylist = asynchadnler(async (req, res) => {
         res.status(200).json(new ApiResponse(200,"Playlist successfully deleted"))
 
     } catch (error) {
-        throw new ApiError(514,"Playlist not present ")
+        throw new ApiError(514,error,"Playlist not present ")
     }
 })
 
