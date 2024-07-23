@@ -5,20 +5,30 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { asynchadnler } from "../utils/asynhandler.js"
 
 const getVideoComments = asynchadnler(async (req, res) => {
-    //TODO: get all comments for a video
-    const {videoId} = req.params
-    const {page = 1, limit = 10} = req.query
-    const comments= await Comment.find(
-        {
-            video:videoId,
-        }
-    ).limit(limit)
-    if(comments.length===0){
-        throw new ApiError(500,"Comment not found")
-    }
-    return res.status(200).json(new ApiResponse(200,comments,"Comment Fetched successfully"))
+    const { videoId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
 
-})
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    
+    const skip = (pageNumber - 1) * limitNumber;
+
+    try {
+        const comments = await Comment.find({ video: videoId })
+            .limit(limitNumber)
+            .skip(skip);
+
+        if (comments.length === 0) {
+            throw new ApiError(500, "Comments not found");
+        }
+
+        return res.status(200).json(new ApiResponse(200, comments, "Comments fetched successfully"));
+    } catch (error) {
+        throw new ApiError(500, error.message || "An error occurred while fetching comments");
+    }
+});
+
 
 const addComment = asynchadnler(async (req, res) => {
     // TODO: add a comment to a video

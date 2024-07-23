@@ -6,11 +6,45 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import { asynchadnler } from "../utils/asynhandler.js"
 import { deleteOnCloudinary, uploadOnCloudinary,VideodeleteOnCloudinary } from "../utils/cloudnary.js"
 
-
 const getAllVideos = asynchadnler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-    //TODO: get all videos based on query, sort, pagination
-})
+    const { page = 1, limit = 10, query = '', sortBy = 'createdAt', sortType = 'desc', userId } = req.query;
+
+    // Convert page and limit to integers
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    // Calculate the number of documents to skip
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Build the filter criteria
+    const filter = {};
+    if (query) {
+        filter.title = { $regex: query, $options: 'i' }; // Case-insensitive regex search
+    }
+    if (userId && isValidObjectId(userId)) {
+        filter.owner = userId;
+    }
+
+    // Build the sort criteria
+    const sort = {};
+    sort[sortBy] = sortType === 'asc' ? 1 : -1;
+
+    try {
+        const videos = await Video.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limitNumber);
+
+        if (videos.length === 0) {
+            throw new ApiError(404, "No videos found");
+        }
+
+        return res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"));
+    } catch (error) {
+        throw new ApiError(500, error.message || "An error occurred while fetching videos");
+    }
+});
+
 
 const publishAVideo = asynchadnler(async (req, res) => {
     const { title, description} = req.body
