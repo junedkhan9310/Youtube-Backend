@@ -54,7 +54,8 @@ const getVideoById = asynchadnler(async (req, res) => {
     const { videoId } = req.params
     //TODO: get video by id
     const video = await Video.findById(videoId)
-    return res.status(200).json(200,video,"This is video")
+    if(!video){throw new ApiError(502,"User Not found")}
+    return res.status(200).json(new ApiResponse(200,video,"This is video"))
 })
 
 const updateVideo = asynchadnler(async (req, res) => {
@@ -133,6 +134,18 @@ const deleteVideo = asynchadnler(async (req, res) => {
 
 const togglePublishStatus = asynchadnler(async (req, res) => {
     const { videoId } = req.params
+    const video = await Video.findById(videoId);
+    if(!video){
+        throw new ApiError(504,"Video Not uploaded")
+    }
+    if(video.isPublished==true){
+        video.isPublished=false;
+    }
+    else{
+        video.isPublished=true;
+    }
+    video.save();
+    return res.status(200).json(new ApiResponse(200,video,"Toggle publication successfully"))
 })
 
 export {

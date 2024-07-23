@@ -8,6 +8,15 @@ const getVideoComments = asynchadnler(async (req, res) => {
     //TODO: get all comments for a video
     const {videoId} = req.params
     const {page = 1, limit = 10} = req.query
+    const comments= await Comment.find(
+        {
+            video:videoId,
+        }
+    ).limit(limit)
+    if(comments.length===0){
+        throw new ApiError(500,"Comment not found")
+    }
+    return res.status(200).json(new ApiResponse(200,comments,"Comment Fetched successfully"))
 
 })
 

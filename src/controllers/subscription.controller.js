@@ -12,11 +12,14 @@ const toggleSubscription = asynchadnler(async (req, res) => {
     try {
         const AlreadySubscriber= await Subscription.find(
             {
-                channel:channelId
+                subscriber:req.user?._id,
+                channel:channelId,
+
             }
         )
         if(AlreadySubscriber.length===0)
             {
+                
                 const subscribed = await Subscription.create({
                     subscriber:req.user?._id,
                     channel:channelId
@@ -39,13 +42,53 @@ const toggleSubscription = asynchadnler(async (req, res) => {
 })
 
 // controller to return subscriber list of a channel
-const getUserChannelSubscribers = asynchadnler(async (req, res) => {
+const getSubscribedChannels = asynchadnler(async (req, res) => {
     const {channelId} = req.params
+
+    try {
+        const SubscriberofUser= await Subscription.find(
+            {
+                channel:channelId
+            },
+            {
+                _id:0
+            }
+        )
+        
+        if (SubscriberofUser.length === 0) {
+            throw new ApiError(400, "No subscriber doesn't exist");
+        }
+        
+        res.status(200).json(new ApiResponse(200,SubscriberofUser,"Every Subscriber of channel"))
+    } catch (error) {
+
+        res.status(500).json(new ApiError(500, error,"Can't find user or subscriber"));
+    }
 })
 
 // controller to return channel list to which user has subscribed
-const getSubscribedChannels = asynchadnler(async (req, res) => {
+const  getUserChannelSubscribers= asynchadnler(async (req, res) => {
     const { subscriberId } = req.params
+    try {
+        const UserSubscribedChannel= await Subscription.find(
+            {
+                subscriber:subscriberId
+            },
+            {
+                _id:0
+            }
+        )
+        console.log(UserSubscribedChannel);
+        if (UserSubscribedChannel.length === 0) {
+            throw new ApiError(400, "Haven't subscribed to any channels");
+        }
+        
+        res.status(200).json(new ApiResponse(200,UserSubscribedChannel,"List of Channel subscribed"))
+    } catch (error) {
+
+        res.status(500).json(new ApiError(500, error,"Can't find your subscribed channel"));
+    }
+
 })
 
 export {
